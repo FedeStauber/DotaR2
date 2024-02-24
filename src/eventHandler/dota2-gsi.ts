@@ -6,14 +6,31 @@ import { logger } from "../logger";
 const events = new EventEmitter();
 const clients: GSIClient[] = [];
 
+interface IGame {
+  team2: ITeam;
+  team3: ITeam;
+}
+
+interface ITeam {
+  players: IPlayer[];
+}
+
+interface IPlayer {
+  inGameName: string;
+  inGameId?: string;
+  heroPicked: string;
+}
+
 class GSIClient extends EventEmitter {
   ip: string;
   gamestate: any;
+  game: IGame;
 
   constructor(ip: string) {
     super();
     this.ip = ip;
     this.gamestate = {};
+    this.game = { team2: { players: [] }, team3: { players: [] } };
   }
 }
 
@@ -82,6 +99,61 @@ function NewData(req: any, res: any) {
   res.end();
 }
 
+setInterval(function () {
+  clients.forEach(function (client, index) {
+    if (client?.gamestate?.hero) {
+      Object.keys(client.gamestate.hero.team2).map((player) => {
+        client.game.team2.players.push({
+          inGameId: player,
+          inGameName: "",
+          heroPicked: "",
+        } as IPlayer);
+      });
+      Object.keys(client.gamestate.hero.team3).map((player) => {
+        client.game.team3.players.push({
+          inGameId: player,
+          inGameName: "",
+          heroPicked: "",
+        } as IPlayer);
+      });
+
+      if (client?.gamestate?.hero?.team2 || client?.gamestate?.hero?.team3) {
+        // Visitar el estado del juego para recorrer el array del equipo 2 y revisar si pickeo un nuevo héroe
+        Object.keys(client?.gamestate?.hero?.team2).forEach((player: any) => {
+          const team2PlayerIndex = client.game.team2.players?.findIndex(
+            (p) => p.inGameId === player
+          );
+          if (
+            client.game.team2.players[team2PlayerIndex].heroPicked === "" &&
+            client.gamestate.hero?.team2[player]?.name
+          ) {
+            console.log(
+              "sepickeo del equipo 2 ",
+              client.gamestate.hero?.team2[player]?.name
+            );
+            client.game.team2.players[team2PlayerIndex].heroPicked =
+              client.gamestate.hero?.team2[player]?.name;
+          }
+        });
+        // Visitar el estado del juego para recorrer el array del equipo 3 y revisar si pickeo un nuevo héroe
+        Object.keys(client?.gamestate?.hero?.team3).forEach((player: any) => {
+          const team3PlayerIndex = client.game.team3.players?.findIndex(
+            (p) => p.inGameId === player
+          );
+          if (
+            client.game.team3.players[team3PlayerIndex].heroPicked === "" &&
+            client.gamestate.hero?.team3[player]?.name
+          ) {
+            console.log("sepickeo del equipo 3");
+            client.game.team3.players[team3PlayerIndex].heroPicked =
+              client.gamestate.hero?.team3[player]?.name;
+          }
+        });
+      }
+    }
+  });
+}, 0.5 * 1000);
+
 const d2gsi = (options: {
   port?: number;
   tokens?: string | string[] | null;
@@ -89,7 +161,6 @@ const d2gsi = (options: {
 }) => {
   options = options || {};
   const port = options.port || 3000;
-  const tokens = options.tokens || null;
   const ip = options.ip || "0.0.0.0";
 
   const app = express();

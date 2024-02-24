@@ -35,34 +35,32 @@ electron_1.app.whenReady().then(() => {
             }
         });
     }, 500);
-    const gsi = (0, dota2_gsi_1.default)({ port: 3000 });
-    gsi.events.on("newclient", function (client) {
-        console.log("New client connection, IP address: " + client.ip);
-        /*  client.on("newdata", function (asd: any) {
-          console.log("se pickeo", asd.hero?.team2);
-        });
-       */
-        client.on("hero:team2", function (asd) {
-            console.log("sepickeoalgoelequipo2");
-        });
-        client.on("hero:team#:player#", function (asd) {
-            console.log("sepickeoalgoelequipo3", asd);
-        });
-        client.on("draft:pick", function (asd) {
-            console.log("draft:pick", asd);
-        });
-        client.on("player:activity", function (activity) {
-            if (activity == "playing") {
-                mainWindow.show();
-                console.log("Game started!");
-            }
-        });
-        client.on("hero:level", function (level) {
-            console.log("Now level " + level);
-        });
-        client.on("abilities:ability0:can_cast", function (can_cast) {
-            if (can_cast)
-                console.log("Ability0 off cooldown!");
-        });
+});
+const gsi = (0, dota2_gsi_1.default)({ port: 3000 });
+gsi.events.on("newclient", function (client) {
+    console.log("New client connection, IP address: " + client.ip);
+    /*  client.on("newdata", function (asd: any) {
+      console.log("se pickeo", asd.hero?.team2);
+    });
+   */
+    client.on("draft:pick", function (asd) {
+        console.log("acasiquesepickeo");
+    });
+    client.on("draft", function (asd) {
+        console.log("draft", asd);
+    });
+    client.on("draft:pick", function (asd) {
+        console.log("draft:pick", asd);
+    });
+    client.on("player:activity", function (activity) {
+        if (activity == "playing")
+            console.log("Game started!");
+    });
+    client.on("hero:level", function (level) {
+        console.log("Now level " + level);
+    });
+    client.on("abilities:ability0:can_cast", function (can_cast) {
+        if (can_cast)
+            console.log("Ability0 off cooldown!");
     });
 });

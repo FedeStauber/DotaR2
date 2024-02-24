@@ -12,6 +12,7 @@ class GSIClient extends events_1.EventEmitter {
         super();
         this.ip = ip;
         this.gamestate = {};
+        this.game = { team2: { players: [] }, team3: { players: [] } };
     }
 }
 function CheckClient(req, res, next) {
@@ -67,10 +68,54 @@ function NewData(req, res) {
     req.client.emit("newdata", req.body);
     res.end();
 }
+setInterval(function () {
+    clients.forEach(function (client, index) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        if ((_a = client === null || client === void 0 ? void 0 : client.gamestate) === null || _a === void 0 ? void 0 : _a.hero) {
+            Object.keys(client.gamestate.hero.team2).map((player) => {
+                client.game.team2.players.push({
+                    inGameId: player,
+                    inGameName: "",
+                    heroPicked: "",
+                });
+            });
+            Object.keys(client.gamestate.hero.team3).map((player) => {
+                client.game.team3.players.push({
+                    inGameId: player,
+                    inGameName: "",
+                    heroPicked: "",
+                });
+            });
+            if (((_c = (_b = client === null || client === void 0 ? void 0 : client.gamestate) === null || _b === void 0 ? void 0 : _b.hero) === null || _c === void 0 ? void 0 : _c.team2) || ((_e = (_d = client === null || client === void 0 ? void 0 : client.gamestate) === null || _d === void 0 ? void 0 : _d.hero) === null || _e === void 0 ? void 0 : _e.team3)) {
+                // Visitar el estado del juego para recorrer el array del equipo 2 y revisar si pickeo un nuevo héroe
+                Object.keys((_g = (_f = client === null || client === void 0 ? void 0 : client.gamestate) === null || _f === void 0 ? void 0 : _f.hero) === null || _g === void 0 ? void 0 : _g.team2).forEach((player) => {
+                    var _a, _b, _c, _d, _e, _f, _g;
+                    const team2PlayerIndex = (_a = client.game.team2.players) === null || _a === void 0 ? void 0 : _a.findIndex((p) => p.inGameId === player);
+                    if (client.game.team2.players[team2PlayerIndex].heroPicked === "" &&
+                        ((_c = (_b = client.gamestate.hero) === null || _b === void 0 ? void 0 : _b.team2[player]) === null || _c === void 0 ? void 0 : _c.name)) {
+                        console.log("sepickeo del equipo 2 ", (_e = (_d = client.gamestate.hero) === null || _d === void 0 ? void 0 : _d.team2[player]) === null || _e === void 0 ? void 0 : _e.name);
+                        client.game.team2.players[team2PlayerIndex].heroPicked =
+                            (_g = (_f = client.gamestate.hero) === null || _f === void 0 ? void 0 : _f.team2[player]) === null || _g === void 0 ? void 0 : _g.name;
+                    }
+                });
+                // Visitar el estado del juego para recorrer el array del equipo 3 y revisar si pickeo un nuevo héroe
+                Object.keys((_j = (_h = client === null || client === void 0 ? void 0 : client.gamestate) === null || _h === void 0 ? void 0 : _h.hero) === null || _j === void 0 ? void 0 : _j.team3).forEach((player) => {
+                    var _a, _b, _c, _d, _e;
+                    const team3PlayerIndex = (_a = client.game.team3.players) === null || _a === void 0 ? void 0 : _a.findIndex((p) => p.inGameId === player);
+                    if (client.game.team3.players[team3PlayerIndex].heroPicked === "" &&
+                        ((_c = (_b = client.gamestate.hero) === null || _b === void 0 ? void 0 : _b.team3[player]) === null || _c === void 0 ? void 0 : _c.name)) {
+                        console.log("sepickeo del equipo 3");
+                        client.game.team3.players[team3PlayerIndex].heroPicked =
+                            (_e = (_d = client.gamestate.hero) === null || _d === void 0 ? void 0 : _d.team3[player]) === null || _e === void 0 ? void 0 : _e.name;
+                    }
+                });
+            }
+        }
+    });
+}, 0.5 * 1000);
 const d2gsi = (options) => {
     options = options || {};
     const port = options.port || 3000;
-    const tokens = options.tokens || null;
     const ip = options.ip || "0.0.0.0";
     const app = (0, express_1.default)();
     app.use(body_parser_1.default.json());

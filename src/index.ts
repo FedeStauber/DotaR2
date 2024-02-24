@@ -35,6 +35,7 @@ app.whenReady().then(() => {
 });
 
 const gsi = d2gsi({ port: 3000 });
+
 gsi.events.on("newclient", function (client) {
   console.log("New client connection, IP address: " + client.ip);
 
@@ -64,22 +65,3 @@ gsi.events.on("newclient", function (client) {
     if (can_cast) console.log("Ability0 off cooldown!");
   });
 });
-
-/* server.use(express.urlencoded({ extended: true }));
-server.use(express.raw({ limit: "10Mb", type: "application/json" }));
-
-server.post("/", (req, res) => {
-  console.log(req.body);
-  logger.info(req.body);
-  const text = req.body
-    .toString()
-    .replace(/"(player|owner)":([ ]*)([0-9]+)/gm, '"$1": "$3"')
-    .replace(/(player|owner):([ ]*)([0-9]+)/gm, '"$1": "$3"');
-  const data = JSON.parse(text);
-  res.sendStatus(200);
-});
-
-server.listen(port, () => {
-  return console.log(`Server is listening on ${port}`);
-});
- */
